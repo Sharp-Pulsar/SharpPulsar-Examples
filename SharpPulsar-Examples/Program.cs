@@ -1,4 +1,5 @@
 ﻿using SharpPulsar_Examples.examples.DelayedMessages;
+using SharpPulsar_Examples.examples.Generic;
 using System;
 
 namespace SharpPulsar_Examples
@@ -8,6 +9,10 @@ namespace SharpPulsar_Examples
         //SharpPulsar-Examples delayedaftermessageproducer -t public/default/delayed-delivery-example-topic -n 10
         //SharpPulsar-Examples delayedatmessageproducer -t public/default/delayed-delivery-example-topic -n 10
         //SharpPulsar-Examples DelayedMessageConsumer -t public/default/delayed-delivery-example-topic -sn test-sub -st Shared -n 20
+
+        //Generic Record
+        //SharpPulsar-Examples GenericProducer -t public/default/generic-topic-2 -n 10
+        //SharpPulsar-Examples GenericConsumer -t public/default/generic-topic-2 -sn generic-sub -st Shared -n 0
         static void Main(string[] args)
         {
             if (args.Length == 0)
@@ -26,6 +31,13 @@ namespace SharpPulsar_Examples
                         numMessages = int.Parse(args[4])
                     }); 
                     break;
+                case "genericproducer" when args[1] == "-t" && !string.IsNullOrWhiteSpace(args[2]) && args[3] == "-n" && !string.IsNullOrWhiteSpace(args[4]):
+                    GenericProducer.Start(new ProducerFlags
+                    {
+                        topic = args[2],
+                        numMessages = int.Parse(args[4])
+                    }); 
+                    break;
                 case "delayedatmessageproducer" when args[1] == "-t" && !string.IsNullOrWhiteSpace(args[2]) && args[3] == "-n" && !string.IsNullOrWhiteSpace(args[4]):
                     DelayedAtMessageProducer.Start(new ProducerFlags
                     {
@@ -35,6 +47,16 @@ namespace SharpPulsar_Examples
                     break;
                 case "delayedmessageconsumer" when args[1] == "-t" && !string.IsNullOrWhiteSpace(args[2]) && args[3] == "-sn" && !string.IsNullOrWhiteSpace(args[4]) && args[5] == "-st" && !string.IsNullOrWhiteSpace(args[6]) && args[7] == "-n" && !string.IsNullOrWhiteSpace(args[8]):
                     DelayedMessageConsumer.Start(new ConsumerFlags
+                    {
+                        topic = args[2],
+                        subscriptionName = args[4],
+                        subscriptionType = Sub(args[6]),
+                        numMessages = int.Parse(args[8])
+                        
+                    });
+                    break;
+                case "genericconsumer" when args[1] == "-t" && !string.IsNullOrWhiteSpace(args[2]) && args[3] == "-sn" && !string.IsNullOrWhiteSpace(args[4]) && args[5] == "-st" && !string.IsNullOrWhiteSpace(args[6]) && args[7] == "-n" && !string.IsNullOrWhiteSpace(args[8]):
+                    GenericConsumer.Start(new ConsumerFlags
                     {
                         topic = args[2],
                         subscriptionName = args[4],
