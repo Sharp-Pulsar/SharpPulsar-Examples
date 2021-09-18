@@ -37,4 +37,15 @@ namespace SharpPulsar_Examples
 		public AckType? ackType = null;
 
 	}
+	/// <summary>
+	/// Common flags for a sql example.
+	/// </summary>
+	public class SqlFlags : TopicFlags
+	{
+		public string ServerAddress = "http://127.0.0.1:8081";
+		public string Query = string.Empty;
+		public string Namespace = string.Empty;
+		public string Tenant = string.Empty;
+
+	}
 }
