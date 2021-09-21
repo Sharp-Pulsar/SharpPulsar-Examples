@@ -2,7 +2,7 @@
   "profiles": {
     "SharpPulsar-Examples": {
       "commandName": "Project",
-      "commandLineArgs": "SqlQuery -sr \"http://127.0.0.1:8081\" -q \"select * from sqltopic\" -tn public -ns default"
+      "commandLineArgs": "GenericConsumer -t public/default/generics -sn generics -st Shared -n 0"
     }
   }
 }

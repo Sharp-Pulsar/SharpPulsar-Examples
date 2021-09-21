@@ -89,13 +89,7 @@ namespace SharpPulsar_Examples.examples.Generic
         // Convert a byte array to an Object
         private T FromBytes<T>(byte[] array)
         {
-            var memStream = new MemoryStream();
-            var binForm = new BinaryFormatter();
-            memStream.Write(array, 0, array.Length);
-            memStream.Seek(0, SeekOrigin.Begin);
-            var obj = (T)binForm.Deserialize(memStream);
-
-            return obj;
+            return JsonSerializer.Deserialize<T>(new ReadOnlySpan<byte>(array));
         }
     }
 }

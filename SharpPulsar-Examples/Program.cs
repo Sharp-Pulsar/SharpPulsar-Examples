@@ -13,8 +13,8 @@ namespace SharpPulsar_Examples
         //SharpPulsar-Examples DelayedMessageConsumer -t public/default/delayed-delivery-example-topic -sn test-sub -st Shared -n 20
 
         //Generic Record
-        //SharpPulsar-Examples GenericProducer -t public/default/generic-topic-2 -n 10
-        //SharpPulsar-Examples GenericConsumer -t public/default/generic-topic-2 -sn generic-sub -st Shared -n 0
+        //SharpPulsar-Examples GenericProducer -t public/default/generictopict -n 10
+        //SharpPulsar-Examples GenericConsumer -t public/default/generictopict -sn generic-sub -st Shared -n 0
 
         //Sql
         //SharpPulsar-Examples SqlProducer -t public/default/sqltopic -n 100
@@ -40,7 +40,7 @@ namespace SharpPulsar_Examples
                     }); 
                     break;
                 case "genericproducer" when args[1] == "-t" && !string.IsNullOrWhiteSpace(args[2]) && args[3] == "-n" && !string.IsNullOrWhiteSpace(args[4]):
-                    SqlProducer.Start(new ProducerFlags
+                    GenericProducer.Start(new ProducerFlags
                     {
                         topic = args[2],
                         numMessages = int.Parse(args[4])

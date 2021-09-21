@@ -68,11 +68,8 @@ namespace SharpPulsar_Examples.examples.Generic
             if (obj == null)
                 return null;
 
-            var bf = new BinaryFormatter();
-            var ms = new MemoryStream();
-            bf.Serialize(ms, obj);
-
-            return ms.ToArray();
+            return JsonSerializer.SerializeToUtf8Bytes(obj,
+                     new JsonSerializerOptions { WriteIndented = false, IgnoreNullValues = true });
         }
 
     }
