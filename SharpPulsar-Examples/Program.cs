@@ -8,9 +8,9 @@ namespace SharpPulsar_Examples
 {
     class Program
     {
-        //SharpPulsar-Examples delayedaftermessageproducer -t public/default/delayed-delivery-example-topic -n 10
-        //SharpPulsar-Examples delayedatmessageproducer -t public/default/delayed-delivery-example-topic -n 10
-        //SharpPulsar-Examples DelayedMessageConsumer -t public/default/delayed-delivery-example-topic -sn test-sub -st Shared -n 20
+        //SharpPulsar-Examples delayedaftermessageproducer -t public/default/delayed-delivery-topic -n 10
+        //SharpPulsar-Examples delayedatmessageproducer -t public/default/delayed-delivery-topic -n 10
+        //SharpPulsar-Examples DelayedMessageConsumer -t public/default/delayed-delivery-topic -sn test-sub -st Shared -n 0
 
         //Generic Record
         //SharpPulsar-Examples GenericProducer -t public/default/generictopict -n 10
