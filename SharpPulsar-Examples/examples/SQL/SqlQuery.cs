@@ -1,10 +1,9 @@
 ﻿using Akka.Actor;
-using SharpPulsar;
-using SharpPulsar.Sql.Client;
-using SharpPulsar.Sql.Message;
-using SharpPulsar.Sql.Public;
+using SharpPulsar.Trino;
+using SharpPulsar.Trino.Message;
 using System;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace SharpPulsar_Examples.examples.Sql
 {
@@ -26,14 +25,14 @@ namespace SharpPulsar_Examples.examples.Sql
             return new SqlFlags();
         }
 
-        private void Run(SqlFlags flags)
+        private async Task Run(SqlFlags flags)
         {
             var option = new ClientOptions { Server = flags.ServerAddress, Execute = flags.Query, Catalog = "pulsar", Schema = $"{flags.Tenant}/{flags.Namespace}" };
            
             var actorSystem = ActorSystem.Create("Sql");
             //var sql = PulsarSystem.Sql(option);
             var sql = new SqlInstance(actorSystem, option);
-            var response = sql.Execute(TimeSpan.FromSeconds(30));
+            var response = await sql.ExecuteAsync(TimeSpan.FromSeconds(30));
             if (response != null)
             {
                 var data = response.Response;
@@ -58,10 +57,10 @@ namespace SharpPulsar_Examples.examples.Sql
             }
         }
 
-        public static void Start(SqlFlags flags)
+        public static async Task Start(SqlFlags flags)
         {
             var example = new SqlQuery();
-            example.Run(flags);
+            await example.Run(flags);
         }
        
     }

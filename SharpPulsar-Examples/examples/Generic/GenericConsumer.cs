@@ -1,14 +1,13 @@
 ﻿using SharpPulsar;
-using SharpPulsar.Configuration;
+using SharpPulsar.Builder;
 using SharpPulsar.Exceptions;
 using SharpPulsar.Interfaces;
-using SharpPulsar.Interfaces.ISchema;
+using SharpPulsar.Interfaces.Schema;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SharpPulsar_Examples.examples.Generic
 {
@@ -30,14 +29,14 @@ namespace SharpPulsar_Examples.examples.Generic
             return new ConsumerFlags();
         }
 
-        private void Run(ConsumerFlags flags)
+        private async Task Run(ConsumerFlags flags)
         {
             var clientConfig = new PulsarClientConfigBuilder()
             .ServiceUrl(flags.binaryServiceUrl);
 
-            var pulsarSystem = PulsarSystem.GetInstance(clientConfig);
+            var pulsarSystem = PulsarSystem.GetInstance();
 
-            var pulsarClient = pulsarSystem.NewClient();
+            var pulsarClient = await pulsarSystem.NewClient(clientConfig);
 
 
             var builder = new ConsumerConfigBuilder<IGenericRecord>()
@@ -46,19 +45,19 @@ namespace SharpPulsar_Examples.examples.Generic
                 .SubscriptionType(flags.subscriptionType)
                 .SubscriptionInitialPosition(flags.subscriptionInitialPosition);
 
-            var consumer = pulsarClient.NewConsumer(ISchema<object>.AutoConsume(), builder);
+            var consumer = await pulsarClient.NewConsumerAsync(ISchema<object>.AutoConsume(), builder);
 
-            Thread.Sleep(TimeSpan.FromSeconds(5));
+            await Task.Delay(TimeSpan.FromSeconds(5));
             int numReceived = 0;
             try
             {
                 while (flags.numMessages <= 0 || numReceived < flags.numMessages)
                 {
-                    var m = consumer.Receive();
+                    var m = await consumer.ReceiveAsync();
 
                     if (m == null)
                     {
-                        Thread.Sleep(TimeSpan.FromMilliseconds(100));
+                        await Task.Delay(TimeSpan.FromMilliseconds(100));
                         continue;
                     }
                     var receivedMessage = m.Value;
@@ -68,7 +67,7 @@ namespace SharpPulsar_Examples.examples.Generic
                     Console.WriteLine(JsonSerializer.Serialize(strinData, new JsonSerializerOptions { WriteIndented = true }));
                     Console.WriteLine(JsonSerializer.Serialize(complexData, new JsonSerializerOptions { WriteIndented = true }));
                     
-                    consumer.Acknowledge(m);
+                    await consumer.AcknowledgeAsync(m);
                     ++numReceived;
                 }
 
@@ -81,10 +80,10 @@ namespace SharpPulsar_Examples.examples.Generic
             }
         }
 
-        public static void Start(ConsumerFlags flags)
+        public static async Task Start(ConsumerFlags flags)
         {
             var example = new GenericConsumer();
-            example.Run(flags);
+            await example.Run(flags);
         }
         // Convert a byte array to an Object
         private T FromBytes<T>(byte[] array)

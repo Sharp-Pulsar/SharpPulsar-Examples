@@ -1,8 +1,9 @@
 ﻿using SharpPulsar;
-using SharpPulsar.Configuration;
+using SharpPulsar.Builder;
 using SharpPulsar.Schemas;
 using System;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace SharpPulsar_Examples.examples.Sql
 {
@@ -23,19 +24,19 @@ namespace SharpPulsar_Examples.examples.Sql
             return new ProducerFlags();
         }
 
-        private void Run(ProducerFlags flags)
+        private async Task Run(ProducerFlags flags)
         {
             var clientConfig = new PulsarClientConfigBuilder()
             .ServiceUrl(flags.binaryServiceUrl);
 
-            var pulsarSystem = PulsarSystem.GetInstance(clientConfig);
-            var pulsarClient = pulsarSystem.NewClient();
+            var pulsarSystem = PulsarSystem.GetInstance();
+            var pulsarClient = await pulsarSystem.NewClient(clientConfig);
 
             var schema = AvroSchema<SqlData>.Of(typeof(SqlData));
             var pBuilder = new ProducerConfigBuilder<SqlData>()
             .Topic(flags.topic);
 
-            var producer = pulsarClient.NewProducer(schema, pBuilder);
+            var producer = await pulsarClient.NewProducerAsync(schema, pBuilder);
 
             int numMessages = Math.Max(flags.numMessages, 1);
 
@@ -48,15 +49,15 @@ namespace SharpPulsar_Examples.examples.Sql
                     Point = 6*i,
                     Sales = 10*2*i
                 };
-               var receipt = producer.Send(data);
+               var receipt = await producer.SendAsync(data);
                 Console.WriteLine(JsonSerializer.Serialize(receipt, new JsonSerializerOptions { WriteIndented = true}));
             }
         }
 
-        public static void Start(ProducerFlags flags)
+        public static async Task Start(ProducerFlags flags)
         {
             var example = new SqlProducer();
-            example.Run(flags);
+            await example.Run(flags);
         }
        
     }

@@ -1,7 +1,6 @@
 ﻿using Akka.Actor;
-using SharpPulsar.Sql.Client;
-using SharpPulsar.Sql.Message;
-using SharpPulsar.Sql.Public;
+using SharpPulsar.Trino;
+using SharpPulsar.Trino.Message;
 using System;
 using System.Text.Json;
 using System.Threading;
@@ -47,10 +46,10 @@ namespace SharpPulsar_Examples.examples.Sql
             }
         }
 
-        public static void Start(SqlFlags flags, CancellationToken token)
+        public static async Task Start(SqlFlags flags, CancellationToken token)
         {
             var example = new SqlLiveQuery(token);
-            example.Run(flags).GetAwaiter().GetResult();
+            await example.Run(flags);
         }
        
     }

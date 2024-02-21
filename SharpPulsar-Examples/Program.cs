@@ -3,6 +3,7 @@ using SharpPulsar_Examples.examples.Generic;
 using SharpPulsar_Examples.examples.Sql;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SharpPulsar_Examples
 {
@@ -20,7 +21,7 @@ namespace SharpPulsar_Examples
         //SharpPulsar-Examples SqlProducer -t public/default/sqltopic -n 100
         //SharpPulsar-Examples SqlQuery -sr "http://127.0.0.1:8081" -q "select * from sqltopic" -tn public -ns default
         //SharpPulsar-Examples SqlLiveQuery -sr "http://127.0.0.1:8081" -q "select * from sqltopic where __publish_time__ > {time} LIMIT 50" -tn public -ns default -t sqltopic
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var token = new CancellationTokenSource();
             if (args.Length == 0)
@@ -33,28 +34,28 @@ namespace SharpPulsar_Examples
             switch (command.ToLower())
             {
                 case "delayedaftermessageproducer" when args[1] == "-t" && !string.IsNullOrWhiteSpace(args[2]) && args[3] == "-n" && !string.IsNullOrWhiteSpace(args[4]):
-                    DelayedAfterMessageProducer.Start(new ProducerFlags
+                    await DelayedAfterMessageProducer.Start(new ProducerFlags
                     {
                         topic = args[2],
                         numMessages = int.Parse(args[4])
                     }); 
                     break;
                 case "genericproducer" when args[1] == "-t" && !string.IsNullOrWhiteSpace(args[2]) && args[3] == "-n" && !string.IsNullOrWhiteSpace(args[4]):
-                    GenericProducer.Start(new ProducerFlags
+                    await GenericProducer.Start(new ProducerFlags
                     {
                         topic = args[2],
                         numMessages = int.Parse(args[4])
                     }); 
                     break;
                 case "sqlproducer" when args[1] == "-t" && !string.IsNullOrWhiteSpace(args[2]) && args[3] == "-n" && !string.IsNullOrWhiteSpace(args[4]):
-                    SqlProducer.Start(new ProducerFlags
+                    await SqlProducer.Start(new ProducerFlags
                     {
                         topic = args[2],
                         numMessages = int.Parse(args[4])
                     }); 
                     break;
                 case "sqlquery" when args[1] == "-sr" && !string.IsNullOrWhiteSpace(args[2]) && args[3] == "-q" && !string.IsNullOrWhiteSpace(args[4]) && args[5] == "-tn" && !string.IsNullOrWhiteSpace(args[6]) && args[7] == "-ns" && !string.IsNullOrWhiteSpace(args[8]):
-                    SqlQuery.Start(new SqlFlags
+                    await SqlQuery.Start(new SqlFlags
                     {
                         ServerAddress = args[2],
                         Query = args[4],
@@ -63,7 +64,7 @@ namespace SharpPulsar_Examples
                     }) ;
                     break;
                 case "sqllivequery" when args[1] == "-sr" && !string.IsNullOrWhiteSpace(args[2]) && args[3] == "-q" && !string.IsNullOrWhiteSpace(args[4]) && args[5] == "-tn" && !string.IsNullOrWhiteSpace(args[6]) && args[7] == "-ns" && !string.IsNullOrWhiteSpace(args[8]) && args[9] == "-t" && !string.IsNullOrWhiteSpace(args[10]):
-                    SqlLiveQuery.Start(new SqlFlags
+                    await SqlLiveQuery.Start(new SqlFlags
                     {
                         topic = args[10],
                         ServerAddress = args[2],
@@ -73,14 +74,14 @@ namespace SharpPulsar_Examples
                     }, token.Token) ;
                     break;
                 case "delayedatmessageproducer" when args[1] == "-t" && !string.IsNullOrWhiteSpace(args[2]) && args[3] == "-n" && !string.IsNullOrWhiteSpace(args[4]):
-                    DelayedAtMessageProducer.Start(new ProducerFlags
+                    await DelayedAtMessageProducer.Start(new ProducerFlags
                     {
                         topic = args[2],
                         numMessages = int.Parse(args[4])
                     }); 
                     break;
                 case "delayedmessageconsumer" when args[1] == "-t" && !string.IsNullOrWhiteSpace(args[2]) && args[3] == "-sn" && !string.IsNullOrWhiteSpace(args[4]) && args[5] == "-st" && !string.IsNullOrWhiteSpace(args[6]) && args[7] == "-n" && !string.IsNullOrWhiteSpace(args[8]):
-                    DelayedMessageConsumer.Start(new ConsumerFlags
+                    await DelayedMessageConsumer.Start(new ConsumerFlags
                     {
                         topic = args[2],
                         subscriptionName = args[4],
@@ -90,7 +91,7 @@ namespace SharpPulsar_Examples
                     });
                     break;
                 case "genericconsumer" when args[1] == "-t" && !string.IsNullOrWhiteSpace(args[2]) && args[3] == "-sn" && !string.IsNullOrWhiteSpace(args[4]) && args[5] == "-st" && !string.IsNullOrWhiteSpace(args[6]) && args[7] == "-n" && !string.IsNullOrWhiteSpace(args[8]):
-                    GenericConsumer.Start(new ConsumerFlags
+                    await GenericConsumer.Start(new ConsumerFlags
                     {
                         topic = args[2],
                         subscriptionName = args[4],

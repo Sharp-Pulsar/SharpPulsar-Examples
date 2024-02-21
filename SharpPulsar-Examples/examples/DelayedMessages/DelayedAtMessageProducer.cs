@@ -1,7 +1,8 @@
 ﻿using SharpPulsar;
-using SharpPulsar.Configuration;
+using SharpPulsar.Builder;
 using SharpPulsar.Interfaces;
 using System;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,16 +41,16 @@ namespace SharpPulsar_Examples.examples.DelayedMessages
             return new ProducerFlags();
         }
 
-        private void Run(ProducerFlags flags)
+        private async Task Run(ProducerFlags flags)
         {
 
             var clientConfig = new PulsarClientConfigBuilder()
             .ServiceUrl(flags.binaryServiceUrl);
 
-            var pulsarSystem = PulsarSystem.GetInstance(clientConfig);
+            var pulsarSystem = PulsarSystem.GetInstance();
 
-            var pulsarClient = pulsarSystem.NewClient();
-            var producer = pulsarClient.NewProducer(ISchema<string>.String, new ProducerConfigBuilder<string>()
+            var pulsarClient = await pulsarSystem.NewClient(clientConfig);
+            var producer = await pulsarClient.NewProducerAsync(ISchema<string>.String, new ProducerConfigBuilder<string>()
                 .Topic(flags.topic));
 
             int numMessages = Math.Max(flags.numMessages, 1);
@@ -57,22 +58,22 @@ namespace SharpPulsar_Examples.examples.DelayedMessages
             // immediate delivery
             for (int i = 0; i < numMessages; i++)
             {
-                producer.NewMessage().Value("Immediate delivery message " + i).Send();
+                await producer.NewMessage().Value("Immediate delivery message " + i).SendAsync();
             }
             producer.Flush();
 
             // delay 5 seconds using DeliverAt
             for (int i = 0; i < numMessages; i++)
             {
-                producer.NewMessage().Value("DeliverAt message " + i).DeliverAt(DateTimeOffset.Now.AddSeconds(5)).Send();
+                await producer.NewMessage().Value("DeliverAt message " + i).DeliverAt(DateTimeOffset.Now.AddSeconds(5)).SendAsync();
             }
             producer.Flush();
         }
 
-        public static void Start(ProducerFlags flags)
+        public static async Task Start(ProducerFlags flags)
         {
             DelayedAtMessageProducer example = new DelayedAtMessageProducer();
-            example.Run(flags);
+            await example.Run(flags);
         }
     }
 

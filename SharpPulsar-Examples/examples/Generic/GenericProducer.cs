@@ -1,14 +1,13 @@
 ﻿using Avro.Generic;
 using SharpPulsar;
-using SharpPulsar.Configuration;
-using SharpPulsar.Interfaces.ISchema;
+using SharpPulsar.Builder;
+using SharpPulsar.Interfaces.Schema;
 using SharpPulsar.Schemas;
 using SharpPulsar.Schemas.Generic;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace SharpPulsar_Examples.examples.Generic
 {
@@ -29,20 +28,20 @@ namespace SharpPulsar_Examples.examples.Generic
             return new ProducerFlags();
         }
 
-        private void Run(ProducerFlags flags)
+        private async Task Run(ProducerFlags flags)
         {
             var clientConfig = new PulsarClientConfigBuilder()
             .ServiceUrl(flags.binaryServiceUrl);
 
-            var pulsarSystem = PulsarSystem.GetInstance(clientConfig);
-            var pulsarClient = pulsarSystem.NewClient();
+            var pulsarSystem = PulsarSystem.GetInstance();
+            var pulsarClient = await pulsarSystem.NewClient(clientConfig);
 
             var schema = AvroSchema<ComplexGenericData>.Of(typeof(ComplexGenericData));
             var genericSchema = GenericAvroSchema.Of(schema.SchemaInfo);
             var pBuilder = new ProducerConfigBuilder<IGenericRecord>()
             .Topic(flags.topic);
 
-            var producer = pulsarClient.NewProducer(genericSchema, pBuilder);
+            var producer = await pulsarClient.NewProducerAsync(genericSchema, pBuilder);
 
             int numMessages = Math.Max(flags.numMessages, 1);
 
@@ -53,15 +52,15 @@ namespace SharpPulsar_Examples.examples.Generic
                 dataForWriter.Add("StringData", new Dictionary<string, string> { { "Index", i.ToString() }, { "FirstName", "Ebere" }, { "LastName", "Abanonu" } });
                 dataForWriter.Add("ComplexData", ToBytes(new ComplexData { ProductId = i, Point = i * 2, Sales = i * 2 * 5 }));
                 var record = new GenericAvroRecord(null, genericSchema.AvroSchema, genericSchema.Fields, dataForWriter);
-                var receipt = producer.Send(record);
+                var receipt = await producer.SendAsync(record);
                 Console.WriteLine(JsonSerializer.Serialize(receipt, new JsonSerializerOptions { WriteIndented = true}));
             }
         }
 
-        public static void Start(ProducerFlags flags)
+        public static async Task Start(ProducerFlags flags)
         {
             var example = new GenericProducer();
-            example.Run(flags);
+            await example.Run(flags);
         }
         private byte[] ToBytes<T>(T obj)
         {

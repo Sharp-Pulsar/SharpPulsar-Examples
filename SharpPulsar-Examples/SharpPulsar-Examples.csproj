@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>SharpPulsar_Examples</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="sharppulsar" Version="2.2.3" />
-    <PackageReference Include="SharpPulsar.Sql" Version="2.1.0" />
+    <PackageReference Include="SharpPulsar" Version="2.15.1" />
+    <PackageReference Include="SharpPulsar.Trino" Version="2.15.1" />
   </ItemGroup>
 
   <ItemGroup>

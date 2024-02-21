@@ -1,7 +1,8 @@
 ﻿using SharpPulsar;
-using SharpPulsar.Configuration;
+using SharpPulsar.Builder;
 using SharpPulsar.Interfaces;
 using System;
+using System.Threading.Tasks;
 
 /// Licensed under the Apache License, Version 2.0 (the "License");
 /// you may not use this file except in compliance with the License.
@@ -38,37 +39,37 @@ namespace SharpPulsar_Examples.examples.DelayedMessages
             return new ProducerFlags();
         }
 
-        private void Run(ProducerFlags flags)
+        private async Task Run(ProducerFlags flags)
         {
             var clientConfig = new PulsarClientConfigBuilder()
             .ServiceUrl(flags.binaryServiceUrl);
 
-            var pulsarSystem = PulsarSystem.GetInstance(clientConfig);
+            var pulsarSystem = PulsarSystem.GetInstance();
 
-            var pulsarClient = pulsarSystem.NewClient();
-            var producer = pulsarClient.NewProducer(ISchema<string>.String, new ProducerConfigBuilder<string>()
+            var pulsarClient = await pulsarSystem.NewClient(clientConfig);
+            var producer = await pulsarClient.NewProducerAsync(ISchema<string>.String, new ProducerConfigBuilder<string>()
                 .Topic(flags.topic));
             int numMessages = Math.Max(flags.numMessages, 1);
 
             // immediate delivery
             for (int i = 0; i < numMessages; i++)
             {
-                producer.NewMessage().Value("Immediate delivery message " + i).Send();
+                await producer.NewMessage().Value("Immediate delivery message " + i).SendAsync();
             }
             producer.Flush();
 
             // delay 5 seconds using DeliverAfter
             for (int i = 0; i < numMessages; i++)
             {
-                producer.NewMessage().Value("DeliverAfter message " + i).DeliverAfter(TimeSpan.FromMilliseconds(5000)).Send();
+                await producer.NewMessage().Value("DeliverAfter message " + i).DeliverAfter(TimeSpan.FromMilliseconds(5000)).SendAsync();
             }
             producer.Flush();
         }
 
-        public static void Start(ProducerFlags flags)
+        public static async Task Start(ProducerFlags flags)
         {
             DelayedAfterMessageProducer example = new DelayedAfterMessageProducer();
-            example.Run(flags);
+            await example.Run(flags);
         }
     }
 }
